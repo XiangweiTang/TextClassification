@@ -87,4 +87,8 @@ def build_model():
 model=keras.models.load_model("PosNeg_model.h5")
 
 pred=model.predict(test_data)
-print(pred)
+
+with open("TestResult.txt",'w+') as f:
+	for item in pred:
+		f.write(str(item[0]))
+		f.write('\n')
