@@ -3,20 +3,18 @@ from tensorflow import keras
 import io
 import DataPrepare as dp
 import numpy as np
+import sys
 
+train_data_path=sys.argv[1]
+train_label_path=sys.argv[2]
 
-train_data_path=r'train_data.txt'
-train_label_path=r'train_label.txt'
+dev_data_path=sys.argv[3]
+dev_label_path=sys.argv[4]
 
-dev_data_path=r'dev_data.txt'
-dev_label_path=r'dev_label.txt'
+dict_path=sys.argv[5]
 
-test_data_path=r'test_data.txt'
-test_label_path=r'test_label.txt'
-
-dict_path=r"dict.txt"
-
-
+pad_index=int(sys.argv[6])
+max_length=int(sys.argv[7])
 	
 train_data=dp.create_data(train_data_path)
 train_label=dp.create_label(train_label_path)
@@ -24,17 +22,13 @@ train_label=dp.create_label(train_label_path)
 dev_data=dp.create_data(dev_data_path)
 dev_label=dp.create_label(dev_label_path)
 
-test_data=dp.create_data(test_data_path)
-test_label=dp.create_label(test_label_path)
-
 word_index_dict=dp.create_dict(dict_path)
 index_word_dict=dict([(value, key) for (key,value) in word_index_dict.items()])
 
 vocab_size=10000
 
-train_data=keras.preprocessing.sequence.pad_sequences(train_data,value=word_index_dict["<PAD>"],padding='post',maxlen=256)
-test_data=keras.preprocessing.sequence.pad_sequences(test_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
-dev_data=keras.preprocessing.sequence.pad_sequences(dev_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
+train_data=keras.preprocessing.sequence.pad_sequences(train_data,value=pad_index,padding='post',maxlen=max_length)
+dev_data=keras.preprocessing.sequence.pad_sequences(dev_data,value=pad_index,padding="post",maxlen=max_length)
 
 def build_model():
 	model=keras.Sequential()
@@ -52,17 +46,4 @@ model.fit(train_data,train_label, epochs=40, batch_size=512, validation_data=(de
 
 
 model.save("PosNeg_model.h5")
-
-results=model.evaluate(test_data,test_label)
-
-print(results)
-
-model=keras.models.load_model("PosNeg_model.h5")
-# new_test_data=create_data(r"D:\public\tmp\Data\Post\Last.txt")
-# new_test_data=keras.preprocessing.sequence.pad_sequences(new_test_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
-# pred=model.predict(new_test_data)
-
-# with open("NewTestResultLast.txt",'w+') as f:
-# 	for item in pred:
-# 		f.write(str(item[0]))
-# 		f.write('\n')
+print("Model is built.")
