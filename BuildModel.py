@@ -4,16 +4,16 @@ import io
 import numpy as np
 
 
-train_data_path=r'D:\XiangweiTang\Python\TextClassification\train_data.txt'
-train_label_path=r'D:\XiangweiTang\Python\TextClassification\train_label.txt'
+train_data_path=r'train_data.txt'
+train_label_path=r'train_label.txt'
 
-dev_data_path=r'D:\XiangweiTang\Python\TextClassification\dev_data.txt'
-dev_label_path=r'D:\XiangweiTang\Python\TextClassification\dev_label.txt'
+dev_data_path=r'dev_data.txt'
+dev_label_path=r'dev_label.txt'
 
-test_data_path=r'D:\XiangweiTang\Python\TextClassification\test_data.txt'
-test_label_path=r'D:\XiangweiTang\Python\TextClassification\test_label.txt'
+test_data_path=r'test_data.txt'
+test_label_path=r'test_label.txt'
 
-dict_path=r"D:\XiangweiTang\Python\TextClassification\dict.txt"
+dict_path=r"dict.txt"
 
 def create_data_itor(file_path):
 	with open(file_path,'r',encoding='UTF-8') as f:		
@@ -85,10 +85,11 @@ def build_model():
 #print(results)
 
 model=keras.models.load_model("PosNeg_model.h5")
+new_test_data=create_data(r"D:\public\tmp\Data\Post\Last.txt")
+new_test_data=keras.preprocessing.sequence.pad_sequences(new_test_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
+pred=model.predict(new_test_data)
 
-pred=model.predict(test_data)
-
-with open("TestResult.txt",'w+') as f:
+with open("NewTestResultLast.txt",'w+') as f:
 	for item in pred:
 		f.write(str(item[0]))
 		f.write('\n')
