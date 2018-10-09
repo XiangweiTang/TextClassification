@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 import io
+import DataPrepare as dp
 import numpy as np
 
 
@@ -15,46 +16,18 @@ test_label_path=r'test_label.txt'
 
 dict_path=r"dict.txt"
 
-def create_data_itor(file_path):
-	with open(file_path,'r',encoding='UTF-8') as f:		
-		for line in f:
-			split=line.split(' ')
-			yield list(map(lambda x:int(x),split))
 
-def create_data(file_path):
-	itor=create_data_itor(file_path)
-	return np.array(list(itor))
-
-def create_label_itor(file_path):
-	with open(file_path,'r',encoding='UTF-8') as f:
-		for line in f:
-			yield int(line)
-
-def create_label(file_path):
-	itor=create_label_itor(file_path)
-	return np.array(list(itor))
-
-def create_dict(file_path):
-	dictionary={}
-	with open(file_path,'r',encoding='UTF-8') as f:
-		for line in f:
-			key=line.split('\t')[0]
-			value=int(line.split('\t')[1])+1
-			dictionary[key]=value
-	dictionary['<UNK>']=1
-	dictionary['<PAD>']=0
-	return dictionary
 	
-train_data=create_data(train_data_path)
-train_label=create_label(train_label_path)
+train_data=dp.create_data(train_data_path)
+train_label=dp.create_label(train_label_path)
 
-dev_data=create_data(dev_data_path)
-dev_label=create_label(dev_label_path)
+dev_data=dp.create_data(dev_data_path)
+dev_label=dp.create_label(dev_label_path)
 
-test_data=create_data(test_data_path)
-test_label=create_label(test_label_path)
+test_data=dp.create_data(test_data_path)
+test_label=dp.create_label(test_label_path)
 
-word_index_dict=create_dict(dict_path)
+word_index_dict=dp.create_dict(dict_path)
 index_word_dict=dict([(value, key) for (key,value) in word_index_dict.items()])
 
 vocab_size=10000
@@ -73,23 +46,23 @@ def build_model():
 	model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.binary_crossentropy, metrics=['accuracy'])
 	return model
 
-#model=build_model()
+model=build_model()
 
-#model.fit(train_data,train_label, epochs=40, batch_size=512, validation_data=(dev_data,dev_label),verbose=1)
+model.fit(train_data,train_label, epochs=40, batch_size=512, validation_data=(dev_data,dev_label),verbose=1)
 
 
-#model.save("PosNeg_model.h5")
+model.save("PosNeg_model.h5")
 
-#results=model.evaluate(test_data,test_label)
+results=model.evaluate(test_data,test_label)
 
-#print(results)
+print(results)
 
 model=keras.models.load_model("PosNeg_model.h5")
-new_test_data=create_data(r"D:\public\tmp\Data\Post\Last.txt")
-new_test_data=keras.preprocessing.sequence.pad_sequences(new_test_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
-pred=model.predict(new_test_data)
+# new_test_data=create_data(r"D:\public\tmp\Data\Post\Last.txt")
+# new_test_data=keras.preprocessing.sequence.pad_sequences(new_test_data,value=word_index_dict["<PAD>"],padding="post",maxlen=256)
+# pred=model.predict(new_test_data)
 
-with open("NewTestResultLast.txt",'w+') as f:
-	for item in pred:
-		f.write(str(item[0]))
-		f.write('\n')
+# with open("NewTestResultLast.txt",'w+') as f:
+# 	for item in pred:
+# 		f.write(str(item[0]))
+# 		f.write('\n')
