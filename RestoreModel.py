@@ -4,19 +4,25 @@ import DataPrepare as dp
 import sys
 import io
 
-test_path=sys.argv[1]
-model_path=sys.argv[2]
-pad_index=int(sys.argv[3])
-max_length=int(sys.argv[4])
-output_path=sys.argv[5]
+def evaluate(test_data_path, test_label_path, model_path, output_path, pad_index=0, max_length=256):
+	test_data=dp.create_data(test_data_path)
+	test_data=keras.preprocessing.sequence.pad_sequences(test_data,value=pad_index,padding="post",maxlen=max_length)
+	test_labl=dp.create_label(test_label_path)
+	model=keras.models.load_model(model_path)
 
-test_data=dp.create_data(test_path)
-test_data=keras.preprocessing.sequence.pad_sequences(test_data,value=pad_index,padding="post",maxlen=max_length)
-
-model=keras.models.load_model(model_path)
-results=model.predict(test_data)
-
-with open(output_path,'w+',encoding='UTF-8') as f:
-	for result in results:
-		f.write("{}\n".format(result))
+	result=model.evaluate(test_data, test_labl)
+	with open(output_path,'w+',encoding='UTF-8') as f:
+		f.write(result)
 	f.close()
+
+def predict(test_data_path, model_path, output_path, pad_index=0, max_length=256):
+	test_data=dp.create_data(test_data_path)
+	test_data=keras.preprocessing.sequence.pad_sequences(test_data, value=pad_index, padding="post", maxlen=max_length)
+
+	model=keras.models.load_model(model_path)
+
+	results=model.predict(test_data)
+	with open(output_path, 'w+', encoding='UTF-8') as f:
+		for result in results:
+			f.write("{}\n".format(result))
+		f.close()
